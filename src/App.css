@@ -1,0 +1,40 @@
+.header {
+  z-index: 1;
+  padding: 20px;
+  background-color: rgb(25, 63, 115, 1) !important;
+}
+
+.header-libro {
+  color: #FFFFFF !important;
+}
+
+
+.header .testamento-boton {
+  background-color: #FFFFFF !important;
+  color: #193F73 !important;
+  border: none !important;
+  font-weight: bold;
+}
+
+.biblia-container {
+  padding-top: 10vh;
+  margin-bottom: 150px;
+}
+
+.biblia-libro-container {
+  padding-top: 17vh;
+  margin-bottom: 150px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.libro-boton {
+  background-color: #E0D3AF !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 135px !important;
+  height: 135px !important;
+  font-weight: bold !important;
+  font-size: 0.9em !important;
+  color: #193F73 !important;
+}
