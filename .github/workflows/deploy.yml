@@ -1,0 +1,73 @@
+name: Deploy to Linode
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Create deployment artifact
+      run: |
+        tar -czf torah-client-build.tar.gz -C build .
+        
+    - name: Deploy to Linode
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.LINODE_HOST }}
+        username: ${{ secrets.LINODE_USERNAME }}
+        key: ${{ secrets.LINODE_SSH_KEY }}
+        script: |
+          # Create deployment directory if it doesn't exist
+          sudo mkdir -p "${{ secrets.DEPLOY_PATH }}"
+          
+          # Set proper permissions
+          sudo chown -R ${{ secrets.LINODE_USERNAME }}:${{ secrets.LINODE_USERNAME }} "${{ secrets.DEPLOY_PATH }}"
+          
+    - name: Copy build files to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.LINODE_HOST }}
+        username: ${{ secrets.LINODE_USERNAME }}
+        key: ${{ secrets.LINODE_SSH_KEY }}
+        source: "torah-client-build.tar.gz"
+        target: "${{ secrets.DEPLOY_PATH }}"
+        
+    - name: Extract and setup deployment
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.LINODE_HOST }}
+        username: ${{ secrets.LINODE_USERNAME }}
+        key: ${{ secrets.LINODE_SSH_KEY }}
+        script: |
+          cd "${{ secrets.DEPLOY_PATH }}"
+          
+          # Extract new build
+          tar -xzf torah-client-build.tar.gz
+          rm torah-client-build.tar.gz
+          
+          # Set proper permissions for web server
+          sudo chown -R www-data:www-data "${{ secrets.DEPLOY_PATH }}"
+          sudo chmod -R 755 "${{ secrets.DEPLOY_PATH }}"
+          
+          # Reload nginx to serve new files
+          sudo systemctl reload nginx
+          
+          echo "Deployment completed successfully"

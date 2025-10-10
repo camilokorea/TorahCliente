@@ -153,6 +153,56 @@ The application uses a custom color scheme:
 
 This project is private and proprietary to Comunidad Menorah.
 
+## 🚀 Deployment
+
+### CI/CD with GitHub Actions
+
+This project includes automated deployment to Linode Ubuntu servers using GitHub Actions.
+
+#### Required GitHub Secrets
+
+Configure the following secrets in your GitHub repository settings:
+
+- `DEPLOY_PATH`: Server deployment path (e.g., `/var/www/torah-client`)
+- `LINODE_HOST`: Your Linode server IP address or domain
+- `LINODE_SSH_KEY`: Private SSH key for server access
+- `LINODE_USERNAME`: SSH username for the server
+
+#### Deployment Process
+
+1. **Automatic Deployment**: Pushes to `main` branch trigger automatic deployment
+2. **Build Process**: Tests run, app builds, and artifacts are created
+3. **Server Deployment**: Files are transferred and extracted on the server
+4. **Health Checks**: Deployment is verified and nginx is reloaded
+
+#### Manual Server Setup
+
+Run the deployment script on your Linode server:
+
+```bash
+# Make the script executable
+chmod +x scripts/deploy.sh
+
+# Run the setup script
+./scripts/deploy.sh /var/www/torah-client your-domain.com
+```
+
+#### Nginx Configuration
+
+The deployment includes optimized nginx configuration for:
+- React Router support (SPA routing)
+- Gzip compression
+- Static asset caching
+- Security headers
+- Service worker handling
+
+#### Deployment Features
+
+- **Backup System**: Automatic backups before each deployment
+- **Rollback Capability**: Easy rollback to previous versions
+- **Health Monitoring**: Deployment verification and health checks
+- **Cleanup**: Automatic cleanup of old backups
+
 ## 📞 Support
 
 For support and questions, please contact the development team.
