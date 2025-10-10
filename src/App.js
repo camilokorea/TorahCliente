@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useDb } from './hooks/useDb';
 import { useApiLibro } from './hooks/useAPILibro';
 import { useApiVersion } from './hooks/useAPIVersion';
@@ -55,13 +55,13 @@ function App() {
     fetchTorah
   } = useApiLibro();
 
-  const updateOnlineStatus = async () => {
+  const updateOnlineStatus = useCallback(async () => {
     setIsOnline(navigator.onLine);
 
     if (navigator.onLine) {
       await queryVersion();
     }
-  };
+  }, [queryVersion]);
 
   useEffect(() => {
     async function initialLoad() {
