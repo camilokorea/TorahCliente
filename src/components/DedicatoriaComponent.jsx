@@ -10,7 +10,7 @@ function DedicatoriaComponent({ dedicatoria }) {
                     <h1>Dedicatoria</h1>
                 </div>
                 <div className='biblia-libro-container'>
-                    <p>{dedicatoria?.contenido}</p>
+                    <p style={{ whiteSpace: 'pre-line' }}>{dedicatoria?.contenido}</p>
                 </div>
             </div>
         </>

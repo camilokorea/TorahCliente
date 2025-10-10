@@ -10,7 +10,9 @@ function GlosarioComponent({ glosario }) {
                     <h1>Glosario</h1>
                 </div>
                 <div className='biblia-libro-container'>
-                    <p>{glosario?.contenido}</p>
+                    <p style={{ whiteSpace: 'pre-line' }}>
+                        {glosario?.contenido}
+                    </p>
                 </div>
             </div>
         </>
