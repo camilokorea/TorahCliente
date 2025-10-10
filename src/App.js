@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDb } from './hooks/useDb';
 import { useApiLibro } from './hooks/useAPILibro';
 import { useApiVersion } from './hooks/useAPIVersion';
