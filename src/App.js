@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useDb } from './hooks/useDb';
 import { useApiLibro } from './hooks/useAPILibro';
 import { useApiVersion } from './hooks/useAPIVersion';
@@ -55,13 +55,13 @@ function App() {
     fetchTorah
   } = useApiLibro();
 
-  const updateOnlineStatus = useCallback(async () => {
+  const updateOnlineStatus = async () => {
     setIsOnline(navigator.onLine);
 
     if (navigator.onLine) {
       await queryVersion();
     }
-  }, [queryVersion]);
+  };
 
   useEffect(() => {
     async function initialLoad() {
@@ -72,7 +72,7 @@ function App() {
     }
 
     initialLoad();
-  }, [queryTorah, queryVersion, updateOnlineStatus]);
+  }, []);
 
   useEffect(() => {
     if (torah.length > 0) {
@@ -82,7 +82,7 @@ function App() {
         fetchTorah();
       }
     }
-  }, [torah, fetchTorah, isOnline]);
+  }, [torah]);
 
   useEffect(() => {
     if (loadingDbVersion) {
@@ -150,41 +150,31 @@ function App() {
         fetchUltimaVersion();
       }
     }
-  }, [version, fetchUltimaVersion, isOnline]);
+  }, [version]);
 
-  useEffect(() => {
-    const handleVersionUpdate = async () => {
-      if (lastVersion !== null) {
-        if (version === undefined) {
+  useMemo(async () => {
+    if (lastVersion !== null) {
+      if (version === undefined) {
+        await insertUltimaVersion(lastVersion);
+        setVersion(lastVersion);
+      }
+
+      if (version) {
+        if (version.version < lastVersion.version) {
           await insertUltimaVersion(lastVersion);
           setVersion(lastVersion);
-        }
-
-        if (version) {
-          if (version.version < lastVersion.version) {
-            await insertUltimaVersion(lastVersion);
-            setVersion(lastVersion);
-            if (isOnline === true) {
-              await fetchTorah();
-            }
+          if (isOnline === true) {
+            await fetchTorah();
           }
         }
       }
-    };
+    }
+  }, [lastVersion]);
 
-    handleVersionUpdate();
-  }, [lastVersion, fetchTorah, insertUltimaVersion, isOnline, setVersion, version]);
-
-  useEffect(() => {
-    const handleApiTorah = async () => {
-      if (apiTorah) {
-        insertTorah(apiTorah);
-        await queryTorah();
-      }
-    };
-
-    handleApiTorah();
-  }, [apiTorah, insertTorah, queryTorah]);
+  useMemo(async () => {
+    insertTorah(apiTorah);
+    await queryTorah();
+  }, [apiTorah]);
 
   useEffect(() => {
     if (data) {
@@ -194,11 +184,11 @@ function App() {
         setGlosario(data[0].glosario);
 
         setLibrosAntiguoTestamento(data[0].libros.filter(item => {
-          return item.testamento === data[0].testamentos[0];
+          return item.testamento == data[0].testamentos[0];
         }));
 
         setLibrosNuevoTestamento(data[0].libros.filter(item => {
-          return item.testamento === data[0].testamentos[1];
+          return item.testamento == data[0].testamentos[1];
         }));
       }
     }
@@ -223,28 +213,13 @@ function App() {
 }
 
 // Register Service Worker for PWA functionality
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('./service-worker.js')
-      .then(registration => {
-        console.log('ServiceWorker registered: ', registration);
-        
-        // Handle service worker updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content is available, reload the page
-                window.location.reload();
-              }
-            });
-          }
-        });
-      })
-      .catch(error => console.log('ServiceWorker registration failed: ', error));
-  });
-}
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker
+//       .register('./service-worker.js')
+//       .then(registration => console.log('ServiceWorker registered: ', registration))
+//       .catch(error => console.log('ServiceWorker registration failed: ', error));
+//   });
+// }
 
 export default App;

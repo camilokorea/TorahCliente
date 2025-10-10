@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ButtonGroup } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -28,7 +28,7 @@ function BibliaComponent({ librosAntiguoTestamento, librosNuevoTestamento, testa
             </div>
             <div className='biblia-container'>
                 {
-                    selectedTestamento === librosAntiguoTestamento[0]?.testamento ?
+                    selectedTestamento == librosAntiguoTestamento[0]?.testamento ?
                         (
                             <LibrosGridComponent items={librosAntiguoTestamento} />
                         ) : (
