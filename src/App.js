@@ -152,28 +152,38 @@ function App() {
     }
   }, [version, fetchUltimaVersion, isOnline]);
 
-  useMemo(async () => {
-    if (lastVersion !== null) {
-      if (version === undefined) {
-        await insertUltimaVersion(lastVersion);
-        setVersion(lastVersion);
-      }
-
-      if (version) {
-        if (version.version < lastVersion.version) {
+  useEffect(() => {
+    const handleVersionUpdate = async () => {
+      if (lastVersion !== null) {
+        if (version === undefined) {
           await insertUltimaVersion(lastVersion);
           setVersion(lastVersion);
-          if (isOnline === true) {
-            await fetchTorah();
+        }
+
+        if (version) {
+          if (version.version < lastVersion.version) {
+            await insertUltimaVersion(lastVersion);
+            setVersion(lastVersion);
+            if (isOnline === true) {
+              await fetchTorah();
+            }
           }
         }
       }
-    }
+    };
+
+    handleVersionUpdate();
   }, [lastVersion, fetchTorah, insertUltimaVersion, isOnline, setVersion, version]);
 
-  useMemo(async () => {
-    insertTorah(apiTorah);
-    await queryTorah();
+  useEffect(() => {
+    const handleApiTorah = async () => {
+      if (apiTorah) {
+        insertTorah(apiTorah);
+        await queryTorah();
+      }
+    };
+
+    handleApiTorah();
   }, [apiTorah, insertTorah, queryTorah]);
 
   useEffect(() => {
@@ -217,7 +227,22 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('./service-worker.js')
-      .then(registration => console.log('ServiceWorker registered: ', registration))
+      .then(registration => {
+        console.log('ServiceWorker registered: ', registration);
+        
+        // Handle service worker updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New content is available, reload the page
+                window.location.reload();
+              }
+            });
+          }
+        });
+      })
       .catch(error => console.log('ServiceWorker registration failed: ', error));
   });
 }
