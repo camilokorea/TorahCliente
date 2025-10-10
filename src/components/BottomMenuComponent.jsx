@@ -9,15 +9,15 @@ const BottomMenuComponent = ({ onSelect, version, isOnline }) => {
                 {/* Menú de navegación */}
                 <Nav className="gap-3">
                     <Nav.Link onClick={() => onSelect('/')} className="d-flex flex-column justify-content-between align-items-center">
-                        <img src='https://biblia.comunidadmenorah.com/images/comunidadmenorahbiblia.png' width={40}></img>
+                        <img src='https://biblia.comunidadmenorah.com/images/comunidadmenorahbiblia.png' width={40} alt='Biblia'></img>
                         <p>Biblia</p>
                     </Nav.Link>
                     <Nav.Link onClick={() => onSelect('/dedicatoria')} className="d-flex flex-column justify-content-between align-items-center">
-                        <img src='https://biblia.comunidadmenorah.com/images/dedicatoria.png' width={40}></img>
+                        <img src='https://biblia.comunidadmenorah.com/images/dedicatoria.png' width={40} alt='Dedicatoria'></img>
                         <p>Dedicatoria</p>
                     </Nav.Link>
                     <Nav.Link onClick={() => onSelect('/glosario')} className="d-flex flex-column justify-content-between align-items-center">
-                        <img src='https://biblia.comunidadmenorah.com/images/glosario.png' width={40}></img>
+                        <img src='https://biblia.comunidadmenorah.com/images/glosario.png' width={40} alt='Glosario'></img>
                         <p>Glosario</p>
                     </Nav.Link>
                 </Nav>

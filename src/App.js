@@ -72,7 +72,7 @@ function App() {
     }
 
     initialLoad();
-  }, []);
+  }, [queryTorah, queryVersion, updateOnlineStatus]);
 
   useEffect(() => {
     if (torah.length > 0) {
@@ -82,7 +82,7 @@ function App() {
         fetchTorah();
       }
     }
-  }, [torah]);
+  }, [torah, fetchTorah, isOnline]);
 
   useEffect(() => {
     if (loadingDbVersion) {
@@ -150,7 +150,7 @@ function App() {
         fetchUltimaVersion();
       }
     }
-  }, [version]);
+  }, [version, fetchUltimaVersion, isOnline]);
 
   useMemo(async () => {
     if (lastVersion !== null) {
@@ -169,12 +169,12 @@ function App() {
         }
       }
     }
-  }, [lastVersion]);
+  }, [lastVersion, fetchTorah, insertUltimaVersion, isOnline, setVersion, version]);
 
   useMemo(async () => {
     insertTorah(apiTorah);
     await queryTorah();
-  }, [apiTorah]);
+  }, [apiTorah, insertTorah, queryTorah]);
 
   useEffect(() => {
     if (data) {
@@ -184,11 +184,11 @@ function App() {
         setGlosario(data[0].glosario);
 
         setLibrosAntiguoTestamento(data[0].libros.filter(item => {
-          return item.testamento == data[0].testamentos[0];
+          return item.testamento === data[0].testamentos[0];
         }));
 
         setLibrosNuevoTestamento(data[0].libros.filter(item => {
-          return item.testamento == data[0].testamentos[1];
+          return item.testamento === data[0].testamentos[1];
         }));
       }
     }

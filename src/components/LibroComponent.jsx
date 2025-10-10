@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo, useRef, use } from 'react';
-import { Container, Row, Button, Col } from 'react-bootstrap';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 import Spinner from 'react-bootstrap/Spinner';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { useDb } from '../hooks/useDb';
 import { useParams } from "react-router-dom";
 import Accordion from 'react-bootstrap/Accordion';
@@ -19,19 +19,19 @@ const LibroComponent = () => {
 
     useEffect(() => {
         queryTorah();
-    }, []);
+    }, [queryTorah]);
 
     useMemo(() => {
         if (torah) {
             if (torah.length > 0) {
                 if (torah[0]) {
                     setLibro(torah[0].libros.filter(item => {
-                        return item.id == id;
+                        return item.id === id;
                     })[0]);
                 }
             }
         }
-    }, [torah]);
+    }, [torah, id]);
 
     return (
         <>
