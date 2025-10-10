@@ -1,8 +1,23 @@
-name: Deploy to Linode
+name: Deploy to Linode Ubuntu Server
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+      force_deploy:
+        description: 'Force deployment even if no changes'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   deploy:
@@ -11,63 +26,90 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
+    - name: Display deployment info
+      run: |
+        echo "🚀 Starting deployment..."
+        echo "Environment: ${{ github.event.inputs.environment || 'production' }}"
+        echo "Force deploy: ${{ github.event.inputs.force_deploy || 'false' }}"
+        echo "Triggered by: ${{ github.event_name }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
+
+    - name: Clean and install dependencies
+      run: |
+        rm -rf node_modules package-lock.json
+        npm install
+
     - name: Build application
       run: npm run build
-      
-    - name: Create deployment artifact
+
+    - name: Verify build output
       run: |
-        tar -czf torah-client-build.tar.gz -C build .
-        
-    - name: Deploy to Linode
+        echo "Checking build output..."
+        ls -la build/
+        if [ ! -f "build/index.html" ]; then
+          echo "❌ index.html not found in build/"
+          exit 1
+        fi
+        echo "✅ Build verification successful"
+
+    - name: Deploy to Linode server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.LINODE_HOST }}
         username: ${{ secrets.LINODE_USERNAME }}
         key: ${{ secrets.LINODE_SSH_KEY }}
+        port: 22
         script: |
           # Create deployment directory if it doesn't exist
           sudo mkdir -p "${{ secrets.DEPLOY_PATH }}"
           
-          # Set proper permissions
-          sudo chown -R ${{ secrets.LINODE_USERNAME }}:${{ secrets.LINODE_USERNAME }} "${{ secrets.DEPLOY_PATH }}"
-          
-    - name: Copy build files to server
+          # Clean previous deployment
+          sudo rm -rf "${{ secrets.DEPLOY_PATH }}/*"
+
+    - name: Create deployment archive
+      run: |
+        cd build
+        tar -czf ../deployment.tar.gz .
+
+    - name: Copy files to server
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.LINODE_HOST }}
         username: ${{ secrets.LINODE_USERNAME }}
         key: ${{ secrets.LINODE_SSH_KEY }}
-        source: "torah-client-build.tar.gz"
+        port: 22
+        source: "deployment.tar.gz"
         target: "${{ secrets.DEPLOY_PATH }}"
-        
+
     - name: Extract and setup deployment
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.LINODE_HOST }}
         username: ${{ secrets.LINODE_USERNAME }}
         key: ${{ secrets.LINODE_SSH_KEY }}
+        port: 22
         script: |
+          # Extract deployment files to the root of deploy path
           cd "${{ secrets.DEPLOY_PATH }}"
+          tar -xzf deployment.tar.gz
           
-          # Extract new build
-          tar -xzf torah-client-build.tar.gz
-          rm torah-client-build.tar.gz
+          # Remove the archive
+          rm deployment.tar.gz
           
-          # Set proper permissions for web server
+          # Set proper permissions
           sudo chown -R www-data:www-data "${{ secrets.DEPLOY_PATH }}"
           sudo chmod -R 755 "${{ secrets.DEPLOY_PATH }}"
           
-          # Reload nginx to serve new files
+          # Restart nginx
           sudo systemctl reload nginx
           
-          echo "Deployment completed successfully"
+          echo "✅ Deployment completed successfully!"
+          echo "📁 Files deployed to: ${{ secrets.DEPLOY_PATH }}"
+          ls -la "${{ secrets.DEPLOY_PATH }}"
