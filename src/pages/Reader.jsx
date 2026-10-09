@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Type } from 'lucide-react';
+import { ChevronLeft, ChevronRight, House, Type } from 'lucide-react';
 import { useTorah } from '../data/TorahProvider';
 import { usePrefs } from '../lib/prefsContext';
 import { saveLastRead } from '../lib/preferences';
@@ -81,12 +81,24 @@ const Reader = () => {
                     >
                         <ChevronLeft size={24} aria-hidden="true" />
                     </Link>
+                    {book.chapterCount > 1 && (
+                        <Link
+                            to="/"
+                            aria-label="Inicio"
+                            title="Inicio"
+                            className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-brand"
+                        >
+                            <House size={20} aria-hidden="true" />
+                        </Link>
+                    )}
                     <Link
                         to={backTo}
                         className="min-w-0 flex-1 truncate rounded-lg px-1 text-center font-serif text-base font-semibold hover:text-brand"
                     >
                         {book.name} {chapterNumber}
                     </Link>
+                    {/* Mantiene el título centrado cuando a la izquierda hay dos botones. */}
+                    {book.chapterCount > 1 && <span className="w-11 shrink-0" aria-hidden="true" />}
                     <button
                         type="button"
                         onClick={() => setSettingsOpen(true)}
