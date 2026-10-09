@@ -39,7 +39,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Clean and install dependencies
       run: |
@@ -47,14 +47,14 @@ jobs:
         npm install
 
     - name: Build application
-      run: npm run build:no-lint
+      run: npm run build
 
     - name: Verify build output
       run: |
         echo "Checking build output..."
-        ls -la build/
-        if [ ! -f "build/index.html" ]; then
-          echo "❌ index.html not found in build/"
+        ls -la dist/
+        if [ ! -f "dist/index.html" ]; then
+          echo "❌ index.html not found in dist/"
           exit 1
         fi
         echo "✅ Build verification successful"
@@ -75,7 +75,7 @@ jobs:
 
     - name: Create deployment archive
       run: |
-        cd build
+        cd dist
         tar -czf ../deployment.tar.gz .
 
     - name: Copy files to server

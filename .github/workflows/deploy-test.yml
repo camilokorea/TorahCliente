@@ -10,7 +10,8 @@ on:
 
 env:
   TEST_PATH: /WWW/test.biblia.ministeriomenorah.com
-  REACT_APP_API_BASE_URL: https://test.bibliaapi.ministeriomenorah.com/api/
+  VITE_API_BASE_URL: https://test.bibliaapi.ministeriomenorah.com/api/
+  VITE_ENV_LABEL: Pruebas
 
 jobs:
   deploy:
@@ -23,7 +24,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22'
 
     - name: Clean and install dependencies
       run: |
@@ -31,15 +32,15 @@ jobs:
         npm install
 
     - name: Build application
-      run: npm run build:no-lint
+      run: npm run build
 
     - name: Verify build output
       run: |
-        test -f build/index.html || { echo "❌ index.html not found in build/"; exit 1; }
+        test -f dist/index.html || { echo "❌ index.html not found in dist/"; exit 1; }
 
     - name: Create deployment archive
       run: |
-        cd build
+        cd dist
         tar -czf ../deployment.tar.gz .
 
     - name: Copy files to server
