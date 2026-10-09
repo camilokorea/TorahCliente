@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useHttpCodes } from './useHttpCodes';
 
-const API_URL = 'https://bibliaapi.comunidadmenorah.com/api/VersionControlador/';
+const API_URL = (process.env.REACT_APP_API_BASE_URL || 'https://bibliaapi.comunidadmenorah.com/api/') + 'VersionControlador/';
 // const API_URL = 'https://localhost:7116/api/VersionControlador/';
 
 export const useApiVersion = () => {
