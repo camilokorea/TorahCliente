@@ -6,18 +6,28 @@ const DB_NAME = 'torah-client-db';
 const TORAH_STORE = 'torah';
 const VERSION_STORE = 'version';
 const TORAH_KEY = '5936a812bd0c404d8dfcd4f0fb488516';
+// Versión 2: estudios bíblicos y sus imágenes (Blob por id) para leerlos sin conexión.
+const ESTUDIOS_STORE = 'estudios';
+const ESTUDIOS_KEY = 'publicados';
+const IMAGENES_STORE = 'imagenes';
 
 let dbPromise = null;
 
 const getDb = () => {
     if (!dbPromise) {
-        dbPromise = openDB(DB_NAME, 1, {
+        dbPromise = openDB(DB_NAME, 2, {
             upgrade(db) {
                 if (!db.objectStoreNames.contains(TORAH_STORE)) {
                     db.createObjectStore(TORAH_STORE);
                 }
                 if (!db.objectStoreNames.contains(VERSION_STORE)) {
                     db.createObjectStore(VERSION_STORE, { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains(ESTUDIOS_STORE)) {
+                    db.createObjectStore(ESTUDIOS_STORE);
+                }
+                if (!db.objectStoreNames.contains(IMAGENES_STORE)) {
+                    db.createObjectStore(IMAGENES_STORE);
                 }
             },
         });
@@ -45,4 +55,34 @@ export const saveTorah = async (torah, version) => {
         tx.objectStore(VERSION_STORE).put(version);
     }
     await tx.done;
+};
+
+export const readEstudios = async () => {
+    const db = await getDb();
+    return (await db.get(ESTUDIOS_STORE, ESTUDIOS_KEY)) ?? null;
+};
+
+export const saveEstudios = async (estudios) => {
+    const db = await getDb();
+    await db.put(ESTUDIOS_STORE, estudios, ESTUDIOS_KEY);
+};
+
+export const readImagen = async (id) => {
+    const db = await getDb();
+    return db.get(IMAGENES_STORE, id);
+};
+
+export const saveImagen = async (id, blob) => {
+    const db = await getDb();
+    await db.put(IMAGENES_STORE, blob, id);
+};
+
+export const listImagenIds = async () => {
+    const db = await getDb();
+    return db.getAllKeys(IMAGENES_STORE);
+};
+
+export const deleteImagen = async (id) => {
+    const db = await getDb();
+    await db.delete(IMAGENES_STORE, id);
 };

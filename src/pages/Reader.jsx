@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, House, Type } from 'lucide-react';
 import { useTorah } from '../data/TorahProvider';
 import { usePrefs } from '../lib/prefsContext';
@@ -41,6 +41,8 @@ const Reader = () => {
     const { bookById, nextChapter, prevChapter } = useTorah();
     const { prefs } = usePrefs();
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const { hash } = useLocation();
+    const [highlight, setHighlight] = useState(null);
     const closeSettings = useCallback(() => setSettingsOpen(false), []);
 
     const book = bookById.get(id);
@@ -52,14 +54,28 @@ const Reader = () => {
 
     useEffect(() => {
         if (!book || !chapter) return;
-        window.scrollTo(0, 0);
+        // "#v3" (p. ej. desde un estudio): ir a ese versículo y resaltarlo un momento.
+        const target = Number(hash.match(/^#v(\d+)$/)?.[1]);
+        const el = target && document.getElementById(`v${target}`);
+        if (el) {
+            el.scrollIntoView({ block: 'center' });
+            setHighlight(target);
+        } else {
+            window.scrollTo(0, 0);
+        }
         saveLastRead(book.id, chapterNumber);
         const baseTitle = document.title;
         document.title = `${book.name} ${chapterNumber} · ${baseTitle}`;
         return () => {
             document.title = baseTitle;
         };
-    }, [book, chapter, chapterNumber]);
+    }, [book, chapter, chapterNumber, hash]);
+
+    useEffect(() => {
+        if (!highlight) return undefined;
+        const timer = setTimeout(() => setHighlight(null), 2500);
+        return () => clearTimeout(timer);
+    }, [highlight]);
 
     const go = (target) => target && navigate(chapterPath(target));
     const swipe = useSwipe(() => go(next), () => go(prev));
@@ -124,7 +140,7 @@ const Reader = () => {
                     {prefs.layout === 'paragraph' ? (
                         <p>
                             {verses.map((v) => (
-                                <span key={v.n} id={`v${v.n}`}>
+                                <span key={v.n} id={`v${v.n}`} className={`transition-colors duration-700 ${highlight === v.n ? 'rounded bg-gold-soft' : ''}`}>
                                     <sup className="mx-0.5 select-none font-sans text-[0.62em] font-semibold text-gold">{v.n}</sup>
                                     {v.text}{' '}
                                 </span>
@@ -132,7 +148,11 @@ const Reader = () => {
                         </p>
                     ) : (
                         verses.map((v) => (
-                            <p key={v.n} id={`v${v.n}`} className="mb-3.5">
+                            <p
+                                key={v.n}
+                                id={`v${v.n}`}
+                                className={`-mx-2 mb-3.5 rounded-lg px-2 transition-colors duration-700 ${highlight === v.n ? 'bg-gold-soft' : ''}`}
+                            >
                                 <sup className="mr-1.5 select-none font-sans text-[0.62em] font-semibold text-gold">{v.n}</sup>
                                 {v.text}
                             </p>

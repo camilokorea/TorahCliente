@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BookA, BookOpen, ScrollText, Settings } from 'lucide-react';
+import { BookA, BookOpen, GraduationCap, ScrollText, Settings } from 'lucide-react';
 
 const ITEMS = [
     { to: '/', label: 'Biblia', Icon: BookOpen, isActive: (p) => p === '/' || p.startsWith('/libro') },
+    { to: '/estudios', label: 'Estudios', Icon: GraduationCap, isActive: (p) => p.startsWith('/estudios') },
     { to: '/dedicatoria', label: 'Dedicatoria', Icon: ScrollText },
     { to: '/glosario', label: 'Glosario', Icon: BookA },
     { to: '/ajustes', label: 'Ajustes', Icon: Settings },

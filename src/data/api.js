@@ -7,6 +7,20 @@ const fail = (what, response) => {
     throw new Error(`${what} (${response.status})`);
 };
 
+export const imagenRemotaUrl = (id) => `${API_BASE_URL}Imagen/${id}`;
+
+export const fetchEstudios = async () => {
+    const response = await fetch(API_BASE_URL + 'Estudio/publicados', { cache: 'no-store' });
+    if (!response.ok) fail('No se pudieron consultar los estudios', response);
+    return response.json();
+};
+
+export const fetchImagen = async (id) => {
+    const response = await fetch(imagenRemotaUrl(id));
+    if (!response.ok) fail('No se pudo descargar una imagen', response);
+    return response.blob();
+};
+
 export const fetchUltimaVersion = async () => {
     const response = await fetch(API_BASE_URL + 'VersionControlador/ultimaversion', { cache: 'no-store' });
     if (!response.ok) fail('No se pudo consultar la versión', response);
