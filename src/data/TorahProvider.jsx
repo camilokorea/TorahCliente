@@ -27,10 +27,12 @@ export const TorahProvider = ({ children }) => {
     const torahRef = useRef(null);
     const versionRef = useRef(null);
     const syncing = useRef(false);
+    const lastCheck = useRef(0);
 
     const sync = useCallback(async () => {
         if (syncing.current || !navigator.onLine) return;
         syncing.current = true;
+        lastCheck.current = Date.now();
         setChecking(true);
 
         const hadLocal = !!torahRef.current;
@@ -95,10 +97,13 @@ export const TorahProvider = ({ children }) => {
         const goOnline = () => { setIsOnline(true); sync(); };
         const goOffline = () => setIsOnline(false);
         window.addEventListener('online', goOnline);
+        const onVisible = () => document.visibilityState === 'visible' && Date.now() - lastCheck.current > 60_000 && sync();
+        document.addEventListener('visibilitychange', onVisible);
         window.addEventListener('offline', goOffline);
         return () => {
             cancelled = true;
             window.removeEventListener('online', goOnline);
+            document.removeEventListener('visibilitychange', onVisible);
             window.removeEventListener('offline', goOffline);
         };
     }, [sync]);

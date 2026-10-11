@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useEstudios } from '../data/EstudiosProvider';
@@ -8,6 +8,7 @@ import { parseVerses } from '../lib/verses';
 import { Markdown } from '../lib/markdown';
 import PageHeader from '../components/PageHeader';
 import NotFound from './NotFound';
+import ImageViewer from '../components/ImageViewer';
 
 const WHOLE_CHAPTER = 999;
 
@@ -58,13 +59,15 @@ const VersesQuote = ({ refItem }) => {
 
 const Estudio = () => {
     const { id } = useParams();
-    const { byId, loading, imagenUrl } = useEstudios();
+    const { byId, loading, imagenUrl, refresh } = useEstudios();
     const { prefs } = usePrefs();
     const estudio = byId.get(id);
+    const [viewing, setViewing] = useState(null); // { src, alt }
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [id]);
+        refresh();
+    }, [id, refresh]);
 
     if (loading) return <div className="mx-auto mt-20 h-64 max-w-2xl animate-pulse rounded-2xl bg-surface-2" aria-busy="true" />;
     if (!estudio) return <NotFound />;
@@ -117,7 +120,14 @@ const Estudio = () => {
                                     const src = imagenUrl(b.imagenId);
                                     return src ? (
                                         <figure key={b.id}>
-                                            <img src={src} alt={b.leyenda || ''} loading="lazy" className="w-full rounded-2xl" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setViewing({ src, alt: b.leyenda || '' })}
+                                                aria-label={`Ampliar imagen${b.leyenda ? `: ${b.leyenda}` : ''}`}
+                                                className="block w-full cursor-zoom-in overflow-hidden rounded-2xl focus-visible:outline-2 focus-visible:outline-brand"
+                                            >
+                                                <img src={src} alt={b.leyenda || ''} loading="lazy" className="w-full" />
+                                            </button>
                                             {b.leyenda && <figcaption className="mt-2 text-center font-sans text-sm text-muted">{b.leyenda}</figcaption>}
                                         </figure>
                                     ) : null;
@@ -132,6 +142,7 @@ const Estudio = () => {
                     </section>
                 ))}
             </main>
+            {viewing && <ImageViewer src={viewing.src} alt={viewing.alt} onClose={() => setViewing(null)} />}
         </div>
     );
 };

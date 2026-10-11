@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, GraduationCap, RefreshCw, WifiOff } from 'lucide-react';
 import { useEstudios } from '../data/EstudiosProvider';
@@ -6,8 +6,12 @@ import { useTorah } from '../data/TorahProvider';
 import PageHeader from '../components/PageHeader';
 
 const Estudios = () => {
-    const { estudios, loading, error, sync, syncing, imagenUrl } = useEstudios();
+    const { estudios, loading, error, sync, syncing, imagenUrl, refresh } = useEstudios();
     const { isOnline } = useTorah();
+
+    useEffect(() => {
+        refresh();
+    }, [refresh]);
 
     return (
         <div className="pb-28">

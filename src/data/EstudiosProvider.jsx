@@ -25,6 +25,7 @@ export const EstudiosProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const urlsRef = useRef({});
     const busy = useRef(false);
+    const lastSync = useRef(0);
 
     // URL local (objectURL) para cada imagen guardada; las que falten se piden al servidor.
     const loadUrls = useCallback(async (lista) => {
@@ -45,6 +46,7 @@ export const EstudiosProvider = ({ children }) => {
     const sync = useCallback(async () => {
         if (busy.current || !navigator.onLine) return;
         busy.current = true;
+        lastSync.current = Date.now();
         setSyncing(true);
         try {
             const remotos = await fetchEstudios();
@@ -92,11 +94,20 @@ export const EstudiosProvider = ({ children }) => {
         })();
         const onOnline = () => sync();
         window.addEventListener('online', onOnline);
+        // Al volver a la app (otra pestaña o en segundo plano en el teléfono) se buscan cambios.
+        const onVisible = () => document.visibilityState === 'visible' && Date.now() - lastSync.current > 60_000 && sync();
+        document.addEventListener('visibilitychange', onVisible);
         return () => {
             cancelled = true;
             window.removeEventListener('online', onOnline);
+            document.removeEventListener('visibilitychange', onVisible);
         };
     }, [sync, loadUrls]);
+
+    // Sincroniza si pasó más de un minuto desde la última vez (al volver a la app o abrir un estudio).
+    const refresh = useCallback(() => {
+        if (Date.now() - lastSync.current > 60_000) sync();
+    }, [sync]);
 
     useEffect(() => () => Object.values(urlsRef.current).forEach((u) => URL.revokeObjectURL(u)), []);
 
@@ -109,10 +120,11 @@ export const EstudiosProvider = ({ children }) => {
             syncing,
             error,
             sync,
+            refresh,
             imagenUrl,
             byId: new Map((estudios ?? []).map((e) => [e.id, e])),
         }),
-        [estudios, syncing, error, sync, imagenUrl]
+        [estudios, syncing, error, sync, refresh, imagenUrl]
     );
 
     return <EstudiosContext.Provider value={value}>{children}</EstudiosContext.Provider>;
