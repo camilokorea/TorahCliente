@@ -121,7 +121,7 @@ const VersesQuote = ({ refItem }) => {
                     onClick={() => chapter && setOpen(true)}
                     disabled={!chapter}
                     aria-label={`Ver ${label} en contexto`}
-                    className="block w-full rounded-2xl px-4 py-3.5 text-left transition hover:bg-gold-soft/40 focus-visible:outline-2 focus-visible:outline-brand"
+                    className="block w-full cursor-pointer rounded-2xl px-4 py-3.5 text-left transition hover:bg-gold-soft/40 focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-default"
                 >
                     <figcaption className="mb-1.5 inline-flex items-center gap-1 font-sans text-xs font-semibold uppercase tracking-wider text-gold">
                         {label}
