@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://bibliaapi.comunidadmenorah.com/api/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://bibliaapi.ministeriomenorah.com/api/';
 
 // La API no envía Content-Length; se usa un tamaño aproximado para la barra de progreso.
 const APPROX_TORAH_BYTES = 4_400_000;
