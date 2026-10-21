@@ -31,7 +31,7 @@ const Sheet = ({ open, onClose, title, children }) => {
                 aria-modal="true"
                 aria-label={title}
                 tabIndex={-1}
-                className="relative max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-page p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl outline-none sm:rounded-3xl"
+                className="relative max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-page p-5 text-ink pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl outline-none sm:rounded-3xl"
             >
                 <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line sm:hidden" aria-hidden="true" />
                 <div className="mb-5 flex items-center justify-between">

@@ -5,6 +5,7 @@ import { useTorah } from '../data/TorahProvider';
 import { getLastRead } from '../lib/preferences';
 import { normalize } from '../lib/torahIndex';
 import { EnvChip } from '../components/EnvBadge';
+import InstallApp from '../components/InstallApp';
 
 const TESTAMENT_KEY = 'biblia.testamento';
 
@@ -104,6 +105,7 @@ const Home = () => {
                         )}
                     </div>
                     <ContinueReading />
+                    <InstallApp />
                 </div>
             </header>
 

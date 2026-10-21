@@ -3,9 +3,12 @@ import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useTorah } from '../data/TorahProvider';
 import PageHeader from '../components/PageHeader';
 import ReadingSettings from '../components/ReadingSettings';
+import InstallApp from '../components/InstallApp';
+import { useInstall } from '../lib/install';
 
 const Settings = () => {
     const { version, isOnline, checking, checkForUpdates, status } = useTorah();
+    const { mode: installMode } = useInstall();
 
     return (
         <div className="pb-28">
@@ -15,6 +18,15 @@ const Settings = () => {
                     <h2 className="mb-4 font-serif text-xl font-semibold">Lectura</h2>
                     <ReadingSettings showPreview />
                 </section>
+
+                {installMode && (
+                    <section>
+                        <h2 className="mb-4 font-serif text-xl font-semibold">App</h2>
+                        <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+                            <InstallApp variant="row" />
+                        </div>
+                    </section>
+                )}
 
                 <section>
                     <h2 className="mb-4 font-serif text-xl font-semibold">Texto descargado</h2>
